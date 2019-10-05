@@ -6,3 +6,34 @@
  @import "fontawesome/regular.scss";
  @import "fontawesome/brands.scss";
  @import "fontawesome/fontawesome.scss";
+
+ .setting-page-wrap {
+ 	padding: 15px;
+
+ 	#instructions-tab {
+ 		padding: 15px 0;
+ 	}
+
+ 	table.table {
+
+
+ 		tbody {
+
+ 			th {
+ 				vertical-align: middle;
+ 			}
+ 		}
+ 	}
+ }
+
+
+#wonkasoft-tools-options {
+	padding: 15px;
+
+	.container-fluid {
+
+		.card {
+			max-width: 800px;
+		}
+	}
+}

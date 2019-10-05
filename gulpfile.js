@@ -46,7 +46,7 @@ gulp.task('sass', function () {
 
 	.pipe(cleanCSS())
 
-	.pipe(concat('wonkasoft-instafeed-public.css'))
+	.pipe(concat('wonkasoft-bbb-integration-public.css'))
 
 	.pipe(sourcemaps.write('./maps'))
 
@@ -68,7 +68,7 @@ gulp.task('sass-admin', function () {
 
 	.pipe(cleanCSS())
 
-	.pipe(concat('wonkasoft-instafeed-admin.css'))
+	.pipe(concat('wonkasoft-bbb-integration-admin.css'))
 
 	.pipe(sourcemaps.write('./maps'))
 

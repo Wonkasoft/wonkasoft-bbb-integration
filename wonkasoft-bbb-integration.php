@@ -35,6 +35,12 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
+if ( ! defined( 'WONKASOFT_PLUGIN_URL' ) ) {
+	define( 'WONKASOFT_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
+	define( 'WONKASOFT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+	define( 'WONKASOFT_PLUGIN_SLUG', plugin_basename( dirname( __FILE__ ) ) );
+	define( 'WONKASOFT_PLUGIN_IMG_URL', plugins_url( WONKASOFT_PLUGIN_SLUG . '/admin/img' ) );
+}
 define( 'WONKASOFT_BBB_INTEGRATION_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WONKASOFT_BBB_INTEGRATION_URL', plugin_dir_url( __FILE__ ) );
 define( 'WONKASOFT_BBB_INTEGRATION_SLUG', plugin_basename( dirname( __FILE__ ) ) );

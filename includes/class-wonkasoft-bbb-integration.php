@@ -160,6 +160,9 @@ class Wonkasoft_Bbb_Integration {
 	 * @access   private
 	 */
 	private function define_admin_hooks() {
+		global $wonkasoft_bbb_integration_admin;
+
+		$wonkasoft_bbb_integration_admin = new Wonkasoft_Bbb_Integration_Admin( $this->get_plugin_name(), $this->get_version() );
 
 		$plugin_admin = new Wonkasoft_Bbb_Integration_Admin( $this->get_plugin_name(), $this->get_version() );
 
@@ -168,6 +171,8 @@ class Wonkasoft_Bbb_Integration {
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'wonkasoft_bbb_init_admin_menu' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'wonkasoft_init_plugin_screen_action_link' );
 		$this->loader->add_action( 'init', $plugin_admin, 'wonkasoft_bbb_conference' );
+		$this->loader->add_action( 'wp_ajax_wonkasoft_plugins_ajax_requests', $plugin_admin, 'wonkasoft_plugins_ajax_requests' );
+		$this->loader->add_action( 'wp_ajax_nopriv_wonkasoft_plugins_ajax_requests', $plugin_admin, 'wonkasoft_plugins_ajax_requests' );
 
 	}
 

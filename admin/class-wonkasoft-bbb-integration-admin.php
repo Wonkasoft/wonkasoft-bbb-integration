@@ -110,7 +110,7 @@ class Wonkasoft_Bbb_Integration_Admin {
 		if ( empty( $GLOBALS['admin_page_hooks']['wonkasoft_menu'] ) ) {
 			add_menu_page(
 				'Wonkasoft Tools Options',
-				'Tools Options',
+				'Wonkasoft',
 				'manage_options',
 				'wonkasoft_menu',
 				array( $this, 'wonkasoft_tools_options_page' ),
@@ -118,10 +118,17 @@ class Wonkasoft_Bbb_Integration_Admin {
 				100
 			);
 
+			add_submenu_page(
+				'wonkasoft_menu',
+				'Wonkasoft Tools Options',
+				'Tools Options',
+				'manage_options',
+				'wonkasoft_menu',
+				array( $this, 'wonkasoft_tools_options_page' ),
+			);
+
 			$this->wonkasoft_tools_add_options();
 			add_action( 'admin_enqueue_scripts', array( $this, 'wonkasoft_tools_options_js' ), 10, 1 );
-			add_action( 'wp_ajax_nopriv_wonkasoft_plugins_ajax_requests', array( $this, 'wonkasoft_plugins_ajax_requests' ) );
-			add_action( 'wp_ajax_wonkasoft_plugins_ajax_requests', array( $this, 'wonkasoft_plugins_ajax_requests' ) );
 		}
 		/**
 		* This creates option page in the settings tab of admin menu
@@ -144,16 +151,16 @@ class Wonkasoft_Bbb_Integration_Admin {
 	public function wonkasoft_bbb_conference() {
 
 		$labels = array(
-			'name'                  => _x( 'Conferences', 'Post Type General Name', 'bbb_conferences' ),
-			'singular_name'         => _x( 'Conference', 'Post Type Singular Name', 'bbb_conferences' ),
+			'name'                  => _x( 'Conferences', 'bbb_conferences' ),
+			'singular_name'         => _x( 'Conference', 'bbb_conferences' ),
 			'menu_name'             => __( 'Wonkasoft Conferences', 'bbb_conferences' ),
-			'name_admin_bar'        => __( 'Post TypeWonkasoft Conferences', 'bbb_conferences' ),
+			'name_admin_bar'        => __( 'Wonkasoft Conferences', 'bbb_conferences' ),
 			'archives'              => __( 'Conferences Archives', 'bbb_conferences' ),
 			'attributes'            => __( 'Conference Attributes', 'bbb_conferences' ),
 			'parent_item_colon'     => __( 'Parent Conference:', 'bbb_conferences' ),
 			'all_items'             => __( 'All Conferences', 'bbb_conferences' ),
-			'add_new_item'          => __( 'Add New Conference', 'bbb_conferences' ),
-			'add_new'               => __( 'Add New Conference', 'bbb_conferences' ),
+			'add_new_item'          => __( 'Add Conference', 'bbb_conferences' ),
+			'add_new'               => __( 'New Conference', 'bbb_conferences' ),
 			'new_item'              => __( 'New Conference', 'bbb_conferences' ),
 			'edit_item'             => __( 'Edit Conference', 'bbb_conferences' ),
 			'update_item'           => __( 'Update Conference', 'bbb_conferences' ),
@@ -162,38 +169,37 @@ class Wonkasoft_Bbb_Integration_Admin {
 			'search_items'          => __( 'Search Conference', 'bbb_conferences' ),
 			'not_found'             => __( 'Not found', 'bbb_conferences' ),
 			'not_found_in_trash'    => __( 'Not found in Trash', 'bbb_conferences' ),
-			'featured_image'        => __( 'Featured Image', 'bbb_conferences' ),
-			'set_featured_image'    => __( 'Set featured image', 'bbb_conferences' ),
-			'remove_featured_image' => __( 'Remove featured image', 'bbb_conferences' ),
-			'use_featured_image'    => __( 'Use as featured image', 'bbb_conferences' ),
-			'insert_into_item'      => __( 'Insert into conference', 'bbb_conferences' ),
+			'featured_image'        => __( 'Conference Image', 'bbb_conferences' ),
+			'set_featured_image'    => __( 'Set Conference image', 'bbb_conferences' ),
+			'remove_featured_image' => __( 'Remove Conference image', 'bbb_conferences' ),
+			'use_featured_image'    => __( 'Use as Conference image', 'bbb_conferences' ),
+			'insert_into_item'      => __( 'Insert into Conference', 'bbb_conferences' ),
 			'uploaded_to_this_item' => __( 'Uploaded to this Conference', 'bbb_conferences' ),
 			'items_list'            => __( 'Conferences list', 'bbb_conferences' ),
 			'items_list_navigation' => __( 'Conferences list navigation', 'bbb_conferences' ),
 			'filter_items_list'     => __( 'Filter Conferences list', 'bbb_conferences' ),
 		);
 		$args   = array(
-			'label'                 => __( 'Conference', 'bbb_conferences' ),
-			'description'           => __( 'Conference rooms', 'bbb_conferences' ),
-			'labels'                => $labels,
-			'supports'              => array( 'title', 'editor', 'thumbnail', 'custom-fields' ),
-			'taxonomies'            => array( 'category', 'post_tag' ),
-			'hierarchical'          => false,
-			'public'                => true,
-			'show_ui'               => true,
-			'show_in_menu'          => true,
-			'menu_position'         => 100,
-			'menu_icon'             => 'dashicons-groups',
-			'show_in_admin_bar'     => true,
-			'show_in_nav_menus'     => true,
-			'can_export'            => true,
-			'has_archive'           => true,
-			'exclude_from_search'   => false,
-			'publicly_queryable'    => true,
-			'capability_type'       => 'post',
-			'show_in_rest'          => true,
-			'rest_controller_class' => 'Wonkasoft_bbb_conference',
-			'rest_base'             => 'Wonkasoft-bbb-conference',
+			'label'               => __( 'Conference', 'bbb_conferences' ),
+			'description'         => __( 'Conference rooms', 'bbb_conferences' ),
+			'labels'              => $labels,
+			'supports'            => array( 'title', 'editor', 'thumbnail', 'custom-fields' ),
+			'taxonomies'          => array( 'category', 'post_tag' ),
+			'hierarchical'        => false,
+			'public'              => true,
+			'show_ui'             => true,
+			'show_in_menu'        => true,
+			'menu_position'       => 100,
+			'menu_icon'           => 'dashicons-groups',
+			'show_in_admin_bar'   => true,
+			'show_in_nav_menus'   => true,
+			'can_export'          => true,
+			'has_archive'         => true,
+			'exclude_from_search' => false,
+			'publicly_queryable'  => true,
+			'capability_type'     => 'post',
+			'show_in_rest'        => true,
+
 		);
 		register_post_type( 'wonkasoft_conference', $args );
 
@@ -243,23 +249,26 @@ class Wonkasoft_Bbb_Integration_Admin {
 			 * This builds the display of the options page.
 			 */
 	public function wonkasoft_tools_options_page() {
+
 		if ( is_admin() ) {
 			?>
-					<div class="container">
+				<div id="wonkasoft-tools-options">
+
+					<div class="container-fluid">
 						<div class="row">
 							<div class="col-12 title-column">
 								<?php
 								$title_text = get_admin_page_title();
 								?>
-								<h3 class="title-header"><?php echo wp_kses_post( $title_text ); ?></h3>
+								<h3><?php echo wp_kses_post( $title_text ); ?></h3>
 							</div>
 						</div>
 						<div class="row">
 							<div class="col-12 options column">
-								<div class="card w-100">
+								<div class="card">
 									<div class="card-title">
-										<h3><?php esc_html_e( 'Add an option', 'Wonkasoft_Getresponse_Init' ); ?></h3>
-										<button type="button" id="wonkasoft_option_add" class="wonka-btn" data-toggle="modal" data-target="#add_option_modal">Option <i class="fa fa-plus"></i></button>
+										<h3><?php esc_html_e( 'Add an option', 'Wonkasoft_Bbb_Integration' ); ?></h3>
+										<button type="button" id="wonkasoft_option_add" class="btn wonka-btn btn-success" data-toggle="modal" data-target="#add_option_modal">Option <i class="fa fa-plus"></i></button>
 									</div>
 									<div class="card-body">
 								<form id="custom-options-form" method="post" action="options.php">
@@ -275,7 +284,7 @@ class Wonkasoft_Bbb_Integration_Admin {
 									foreach ( $registered_options as $register_option ) {
 										$current_option = ( ! empty( get_option( $register_option['id'] ) ) ) ? get_option( $register_option['id'] ) : '';
 
-										wonkasoft_tool_option_parse(
+										$this->wonkasoft_tool_option_parse(
 											array(
 												'id'       => $register_option['id'],
 												'label'    => $register_option['label'],
@@ -321,7 +330,7 @@ class Wonkasoft_Bbb_Integration_Admin {
 										</div>
 									<?php
 									wp_nonce_field(
-										'theme_options_ajax_post',
+										'wonkasoft_tools_options_ajax_post',
 										'new_option_nonce',
 										true,
 										true
@@ -337,6 +346,8 @@ class Wonkasoft_Bbb_Integration_Admin {
 							</div>
 						</div>
 					</div>
+
+				</div><!-- #wonkasoft-tools-options -->
 				<?php
 		}
 	}
@@ -429,16 +440,20 @@ class Wonkasoft_Bbb_Integration_Admin {
 	 */
 	public function wonkasoft_tools_options_js( $page ) {
 
-		if ( 'toplevel_page_wonkasoft_menu' === $page || 'wonkasoft_menu' === $page ) :
-			wp_enqueue_style( 'bootstrap', 'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css', array(), '4.3.1', 'all' );
+		if ( preg_match( '/[wonkasoft]/', $page ) ) :
+			wp_enqueue_style( 'bootstrap', 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css', array(), '4.1.3', 'all' );
 
 			wp_style_add_data( 'bootstrap', array( 'integrity', 'crossorigin' ), array( 'sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T', 'anonymous' ) );
 
-			wp_enqueue_script( 'bootstrapjs', 'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js', array( 'jquery' ), '4.3.1', true );
+			wp_enqueue_script( 'bootstrap-popper-js', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js', array( 'jquery' ), '4.1.3', true );
+
+			wp_script_add_data( 'bootstrap-popper-js', array( 'integrity', 'crossorigin' ), array( 'sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49', 'anonymous' ) );
+
+			wp_enqueue_script( 'bootstrapjs', 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js', array( 'jquery' ), '4.1.3', true );
 
 			wp_script_add_data( 'bootstrapjs', array( 'integrity', 'crossorigin' ), array( 'sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM', 'anonymous' ) );
 
-			wp_enqueue_script( 'wonkasoft-tools-options-js', WONKASOFT_BBB_INTEGRATION_URL . '/includes/js/wonkasoft-tools-options-js.js', array( 'jquery' ), '20190819', true );
+			wp_enqueue_script( 'wonkasoft-tools-options-js', WONKASOFT_PLUGIN_URL . 'includes/js/wonkasoft-tools-options-js.js', array( 'jquery' ), '20190819', true );
 		endif;
 	}
 
