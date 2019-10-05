@@ -180,25 +180,26 @@ class Wonkasoft_Bbb_Integration_Admin {
 			'filter_items_list'     => __( 'Filter Conferences list', 'bbb_conferences' ),
 		);
 		$args   = array(
-			'label'               => __( 'Conference', 'bbb_conferences' ),
-			'description'         => __( 'Conference rooms', 'bbb_conferences' ),
-			'labels'              => $labels,
-			'supports'            => array( 'title', 'editor', 'thumbnail', 'custom-fields' ),
-			'taxonomies'          => array( 'category', 'post_tag' ),
-			'hierarchical'        => false,
-			'public'              => true,
-			'show_ui'             => true,
-			'show_in_menu'        => true,
-			'menu_position'       => 100,
-			'menu_icon'           => 'dashicons-groups',
-			'show_in_admin_bar'   => true,
-			'show_in_nav_menus'   => true,
-			'can_export'          => true,
-			'has_archive'         => true,
-			'exclude_from_search' => false,
-			'publicly_queryable'  => true,
-			'capability_type'     => 'post',
-			'show_in_rest'        => true,
+			'label'                => __( 'Conference', 'bbb_conferences' ),
+			'description'          => __( 'Conference rooms', 'bbb_conferences' ),
+			'labels'               => $labels,
+			'supports'             => array( 'title', 'editor', 'thumbnail', 'custom-fields' ),
+			'taxonomies'           => array( 'category', 'post_tag' ),
+			'register_meta_box_cb' => array( $this, 'wonkasoft_bbb_meta_box' ),
+			'hierarchical'         => false,
+			'public'               => true,
+			'show_ui'              => true,
+			'show_in_menu'         => true,
+			'menu_position'        => 100,
+			'menu_icon'            => 'dashicons-groups',
+			'show_in_admin_bar'    => true,
+			'show_in_nav_menus'    => true,
+			'can_export'           => true,
+			'has_archive'          => true,
+			'exclude_from_search'  => false,
+			'publicly_queryable'   => true,
+			'capability_type'      => 'post',
+			'show_in_rest'         => true,
 
 		);
 		register_post_type( 'wonkasoft_conference', $args );
@@ -210,6 +211,25 @@ class Wonkasoft_Bbb_Integration_Admin {
 	 */
 	public function wonkasoft_bbb_init_settings_display() {
 		include_once plugin_dir_path( __FILE__ ) . 'partials/wonkasoft-bbb-integration-admin-display.php';
+	}
+
+	/**
+	 * Init for the meta box for wonkasoft_conference post type.
+	 */
+	public function wonkasoft_bbb_meta_box() {
+
+		add_meta_box( 'conference_meta', 'Conference Meta', array( $this, 'wonkasoft_bbb_meta_box_content' ), 'wonkasoft_conference', 'advanced', 'high', null );
+	}
+
+	/**
+	 * This builds the content for the meta box.
+	 *
+	 * @param array $post contains an array of the post.
+	 * @param array $args may contain args passed.
+	 */
+	public function wonkasoft_bbb_meta_box_content( $post, $args = null ) {
+		// Add nonce for security and authentication.
+		wp_nonce_field( 'wonkasoft_conference_nonce', 'wonkasoft_nonce' );
 	}
 
 	/**
