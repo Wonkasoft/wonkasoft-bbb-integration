@@ -173,6 +173,7 @@ class Wonkasoft_Bbb_Integration {
 		$this->loader->add_action( 'init', $plugin_admin, 'wonkasoft_bbb_conference' );
 		$this->loader->add_action( 'wp_ajax_wonkasoft_plugins_ajax_requests', $plugin_admin, 'wonkasoft_plugins_ajax_requests' );
 		$this->loader->add_action( 'wp_ajax_nopriv_wonkasoft_plugins_ajax_requests', $plugin_admin, 'wonkasoft_plugins_ajax_requests' );
+		$this->loader->add_action( 'save_post', $plugin_admin, 'wonkasoft_bbb_meta_box_content_save_post' );
 
 	}
 

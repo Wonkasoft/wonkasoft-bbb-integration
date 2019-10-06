@@ -218,7 +218,8 @@ class Wonkasoft_Bbb_Integration_Admin {
 	 */
 	public function wonkasoft_bbb_meta_box() {
 
-		add_meta_box( 'conference_meta', 'Conference Meta', array( $this, 'wonkasoft_bbb_meta_box_content' ), 'wonkasoft_conference', 'advanced', 'high', null );
+		add_meta_box( 'conference_status_meta_box', 'Conference Status', array( $this, 'wonkasoft_bbb_meta_box_content' ), 'wonkasoft_conference', 'advanced', 'high', null );
+
 	}
 
 	/**
@@ -229,12 +230,486 @@ class Wonkasoft_Bbb_Integration_Admin {
 	 */
 	public function wonkasoft_bbb_meta_box_content( $post, $args = null ) {
 		// Add nonce for security and authentication.
-		wp_nonce_field( 'wonkasoft_conference_nonce', 'wonkasoft_nonce' );
+		wp_nonce_field( 'wonkasoft_conference_save_nonce', 'wonkasoft_conference_status_nonce' );
+		$post_id   = $post->ID;
+		$post_meta = ( ! empty( get_post_meta( $post_id, 'conference_status', true ) ) ) ? wp_kses_allowed_html( get_post_meta( $post_id, 'conference_status', true ) ) : null;
+
+		$post_meta = json_decode( json_encode( $post_meta ) );
+
+		$output = '';
+
+		$output .= '<div id="conference-status">';
+		$output .= '<table class="table table-striped table-hover">';
+		$output .= '<tbody>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= 'Status:';
+		$output .= '</th>';
+		$output .= '<td>';
+		$output .= '<span>' . $post->post_status . '</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="meeting_id">meetingID:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<pre><code>' . $post->ID . '</code></pre>';
+		$output .= '<input type="hidden" value="' . $post->ID . '" id="meeting_id" name="conference_meetingID" />';
+		$output .= '<span class="field-description">A meeting ID that can be used to identify this meeting by the 3rd-party application.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="name">name:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="name" name="conference_name" value="' . $post_meta->name . '" />';
+		$output .= '<span class="field-description">A name for the meeting.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="attendee_pw">attendeePW:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="attendee_pw" name="conference_attendeePW" value="' . $post_meta->attendeePW . '" />';
+		$output .= '<span class="field-description">The password that the join URL can later provide as its password parameter to indicate the user will join as a viewer.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="moderator_pw">moderatorPW:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="moderator_pw" name="conference_moderatorPW" value="' . $post_meta->moderatorPW . '" />';
+		$output .= '<span class="field-description">The password that will join URL can later provide as its password parameter to indicate the user will as a moderator.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="welcome">welcome:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="welcome" name="conference_welcome" value="' . $post_meta->welcome . '" />';
+		$output .= '<span class="field-description">A welcome message that gets displayed on the chat window when the participant joins.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="dial_number">dialNumber:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="dial_number" name="conference_dialNumber" value="' . $post_meta->dialNumber . '" />';
+		$output .= '<span class="field-description">The dial access number that participants can call in using regular phone.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="voice_bridge">voiceBridge:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="voice_bridge" name="conference_voiceBridge" value="' . $post_meta->voiceBridge . '" />';
+		$output .= '<span class="field-description">Voice conference number that participants enter to join the voice conference. The default pattern for this is a 5-digit number. This is the PIN that a dial-in user must enter to join the conference.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="web_voice">webVoice:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="web_voice" name="conference_webVoice" value="' . $post_meta->webVoice . '" />';
+		$output .= '<span class="field-description">Voice conference alphanumeric that participants enter to join the voice conference.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="max_participants">maxParticipants:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="max_participants" name="conference_maxParticipants" value="' . $post_meta->maxParticipants . '" />';
+		$output .= '<span class="field-description">Set the maximum number of users allowed to joined the conference at the same time.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="logout_url">logoutURL:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="logout_url" name="conference_logoutURL" value="' . $post_meta->logoutURL . '" />';
+		$output .= '<span class="field-description">The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out message’.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="record">record:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="record" name="conference_record" value="' . $post_meta->record . '" />';
+		$output .= '<span class="field-description">Setting ‘record=true’ instructs the BigBlueButton server to record the media and events in the session for later playback.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="duration">duration:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="duration" name="conference_duration" value="' . $post_meta->duration . '" />';
+		$output .= '<span class="field-description">The maximum length (in minutes) for the meeting.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="is_breakout">isBreakout:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="is_breakout" name="conference_isBreakout" value="' . $post_meta->isBreakout . '" />';
+		$output .= '<span class="field-description">Must be set to true to create a breakout room.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="parent_meeting_id">parentMeetingID:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="parent_meeting_id" name="conference_parentMeetingID" value="' . $post_meta->parentMeetingID . '" />';
+		$output .= '<span class="field-description">Must be provided when creating a breakout room, the parent room must be running.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="sequence">sequence:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="sequence" name="conference_sequence" value="' . $post_meta->sequence . '" />';
+		$output .= '<span class="field-description">The sequence number of the breakout room.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="free_join">freeJoin:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="free_join" name="conference_freeJoin" value="' . $post_meta->freeJoin . '" />';
+		$output .= '<span class="field-description">If set to true, the client will give the user the choice to choose the breakout rooms he wants to join.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="meta">meta:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="meta" name="conference_meta" value="' . $post_meta->meta . '" />';
+		$output .= '<span class="field-description">Examples of the use of the meta parameters are <code>meta_Presenter=Jane%20Doe</code>, <code>meta_category=FINANCE</code>, and <code>meta_TERM=Fall2016</code>.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="moderator_only_message">moderatorOnlyMessage:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="moderator_only_message" name="conference_moderatorOnlyMessage" value="' . $post_meta->moderatorOnlyMessage . '" />';
+		$output .= '<span class="field-description">Display a message to all moderators in the public chat.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="auto_start_recording">autoStartRecording:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="auto_start_recording" name="conference_autoStartRecording" value="' . $post_meta->autoStartRecording . '" />';
+		$output .= '<span class="field-description">Whether to automatically start recording when first user joins (default false).</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="allow_start_stop_recording">allowStartStopRecording:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="allow_start_stop_recording" name="conference_allowStartStopRecording" value="' . $post_meta->allowStartStopRecording . '" />';
+		$output .= '<span class="field-description">Allow the user to start/stop recording. (default true)</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="webcams_only_for_moderator">webcamsOnlyForModerator:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="webcams_only_for_moderator" name="conference_webcamsOnlyForModerator" value="' . $post_meta->webcamsOnlyForModerator . '" />';
+		$output .= '<span class="field-description">Setting <code>webcamsOnlyForModerator=true</code> will cause all webcams shared by viewers during this meeting to only appear for moderators</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="logo">logo:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="logo" name="conference_logo" value="' . $post_meta->logo . '" />';
+		$output .= '<span class="field-description">Setting <code>logo=http://www.example.com/my-custom-logo.png</code> will replace the default logo in the Flash client.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="banner_text">bannerText:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="banner_text" name="conference_bannerText" value="' . $post_meta->bannerText . '" />';
+		$output .= '<span class="field-description">Will set the banner text in the client.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="banner_color">bannerColor:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="banner_color" name="conference_bannerColor" value="' . $post_meta->bannerColor . '" />';
+		$output .= '<span class="field-description">Will set the banner background color in the client. The required format is color hex <code>#FFFFFF</code>.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="copyright">copyright:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="copyright" name="conference_copyright" value="' . $post_meta->copyright . '" />';
+		$output .= '<span class="field-description">Setting <code>copyright=My custom copyright</code> will replace the default copyright on the footer of the Flash client.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="mute_on_start">muteOnStart:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="mute_on_start" name="conference_muteOnStart" value="' . $post_meta->muteOnStart . '" />';
+		$output .= '<span class="field-description">Setting <code>muteOnStart=true</code> will mute all users when the meeting starts.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="allow_mods_to_unmute_users">allowModsToUnmuteUsers:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="allow_mods_to_unmute_users" name="conference_allowModsToUnmuteUsers" value="' . $post_meta->allowModsToUnmuteUsers . '" />';
+		$output .= '<span class="field-description">Default <code>allowModsToUnmuteUsers=false</code>. Setting to <code>allowModsToUnmuteUsers=true</code> will allow moderators to unmute other users in the meeting.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="allow_mods_to_unmute_users">allowModsToUnmuteUsers:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="allow_mods_to_unmute_users" name="conference_allowModsToUnmuteUsers" value="' . $post_meta->allowModsToUnmuteUsers . '" />';
+		$output .= '<span class="field-description">Default <code>allowModsToUnmuteUsers=false</code>. Setting to <code>allowModsToUnmuteUsers=true</code> will allow moderators to unmute other users in the meeting.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="lock_settings_disable_cam">lockSettingsDisableCam:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="lock_settings_disable_cam" name="conference_lockSettingsDisableCam" value="' . $post_meta->lockSettingsDisableCam . '" />';
+		$output .= '<span class="field-description">Default <code>lockSettingsDisableCam=false</code>. Setting <code>lockSettingsDisableCam=true</code> will prevent users from sharing their camera in the meeting.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="lock_settings_disable_mic">lockSettingsDisableMic:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="lock_settings_disable_mic" name="conference_lockSettingsDisableMic" value="' . $post_meta->lockSettingsDisableMic . '" />';
+		$output .= '<span class="field-description">Default <code>lockSettingsDisableMic=false</code>. Setting to <code>lockSettingsDisableMic=true</code> will only allow user to join listen only.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="lock_settings_disable_private_chat">lockSettingsDisablePrivateChat:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="lock_settings_disable_private_chat" name="conference_lockSettingsDisablePrivateChat" value="' . $post_meta->lockSettingsDisablePrivateChat . '" />';
+		$output .= '<span class="field-description">Default <code>lockSettingsDisablePrivateChat=false</code>. Setting to <code>lockSettingsDisablePrivateChat=true</code> will disable private chats in the meeting.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="lock_settings_disable_public_chat">lockSettingsDisablePublicChat:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="lock_settings_disable_public_chat" name="conference_lockSettingsDisablePublicChat" value="' . $post_meta->lockSettingsDisablePublicChat . '" />';
+		$output .= '<span class="field-description">Default <code>lockSettingsDisablePublicChat=false</code>. Setting to <code>lockSettingsDisablePublicChat=true</code> will disable public chat in the meeting.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="lock_settings_disable_note">lockSettingsDisableNote:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="lock_settings_disable_note" name="conference_lockSettingsDisableNote" value="' . $post_meta->lockSettingsDisableNote . '" />';
+		$output .= '<span class="field-description">Default <code>lockSettingsDisableNote=false</code>. Setting to <code>lockSettingsDisableNote=true</code> will disable notes in the meeting.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="lock_settings_locked_layout">lockSettingsLockedLayout:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="lock_settings_locked_layout" name="conference_lockSettingsLockedLayout" value="' . $post_meta->lockSettingsLockedLayout . '" />';
+		$output .= '<span class="field-description">Default <code>lockSettingsLockedLayout=false</code>. Setting to <code>lockSettingsLockedLayout=true</code> will lock the layout in the meeting.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="lock_settings_lock_on_join">lockSettingsLockOnJoin:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="lock_settings_lock_on_join" name="conference_lockSettingsLockOnJoin" value="' . $post_meta->lockSettingsLockOnJoin . '" />';
+		$output .= '<span class="field-description">Default <code>lockSettingsLockOnJoin=false</code>. Setting to <code>lockSettingsLockOnJoin=true</code> will not apply lock setting to users when they join.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="lock_settings_lock_on_join_configurable">lockSettingsLockOnJoinConfigurable:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="lock_settings_lock_on_join_configurable" name="conference_lockSettingsLockOnJoinConfigurable" value="' . $post_meta->lockSettingsLockOnJoinConfigurable . '" />';
+		$output .= '<span class="field-description">Default <code>lockSettingsLockOnJoinConfigurable=false</code>. Setting to <code>lockSettingsLockOnJoinConfigurable=true</code> will allow applying of <code>lockSettingsLockOnJoin</code> param.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '<tr>';
+		$output .= '<th scope="row">';
+		$output .= '<label for="guest_policy">guestPolicy:</label>';
+		$output .= '</th>';
+		$output .= '<td class="input-group">';
+		$output .= '<input type="text" class="form-control" id="guest_policy" name="conference_guestPolicy" value="' . $post_meta->guestPolicy . '" />';
+		$output .= '<span class="field-description">Default <code>guestPolicy=ALWAYS_ACCEPT</code>. Will set the guest policy for the meeting. The guest policy determines whether or not users who send a join request with <code>guest=true</code> will be allowed to join the meeting.</span>';
+		$output .= '</td>';
+		$output .= '</tr>';
+
+		$output .= '</tbody>';
+		$output .= '</table>';
+		$output .= '</div>';
+
+		echo wp_kses(
+			$output,
+			array(
+				'div'   => array(
+					'id'    => array(),
+					'class' => array(),
+				),
+				'pre'   => array(
+					'class' => array(),
+				),
+				'code'  => array(
+					'id'    => array(),
+					'class' => array(),
+				),
+				'span'  => array(
+					'id'    => array(),
+					'class' => array(),
+				),
+				'table' => array(
+					'class' => array(),
+				),
+				'tbody' => array(
+					'class' => array(),
+				),
+				'tr'    => array(
+					'class' => array(),
+				),
+				'th'    => array(
+					'class'   => array(),
+					'colspan' => array(),
+					'scope'   => array(),
+				),
+				'td'    => array(
+					'class'   => array(),
+					'colspan' => array(),
+				),
+				'label' => array(
+					'for'   => array(),
+					'class' => array(),
+				),
+				'input' => array(
+					'id'    => array(),
+					'name'  => array(),
+					'class' => array(),
+					'type'  => array(),
+					'value' => array(),
+				),
+			)
+		);
 	}
 
 	/**
-	 * Addition of apera-bags theme options.
+	 * This fires when post is saved.
+	 *
+	 * @param  int $post_id contains ID of current post.
 	 */
+	public function wonkasoft_bbb_meta_box_content_save_post( $post_id ) {
+
+		if ( ! isset( $_POST['wonkasoft_conference_status_nonce'] ) || ! wp_verify_nonce( wp_kses_post( wp_unslash( $_POST['wonkasoft_conference_status_nonce'] ) ), 'wonkasoft_conference_save_nonce' ) ) {
+				return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		$passed = $_POST;
+		$data   = array();
+
+		foreach ( $passed as $key => $value ) {
+			if ( strpos( $key, 'conference_' ) !== false && 'wonkasoft_conference_status_nonce' !== $key ) {
+				$new_key          = str_replace( 'conference_', '', $key );
+				$data[ $new_key ] = $value;
+			}
+		}
+
+		if ( ! empty( $data ) ) {
+			update_post_meta( $post_id, 'conference_status', $data );
+		}
+	}
+
+		/**
+		 * Addition of apera-bags theme options.
+		 */
 	public function wonkasoft_tools_add_options() {
 
 		$registered_options = ( ! empty( get_option( 'custom_options_added' ) ) ) ? get_option( 'custom_options_added' ) : '';
@@ -277,9 +752,9 @@ class Wonkasoft_Bbb_Integration_Admin {
 					<div class="container-fluid">
 						<div class="row">
 							<div class="col-12 title-column">
-								<?php
-								$title_text = get_admin_page_title();
-								?>
+							<?php
+							$title_text = get_admin_page_title();
+							?>
 								<h3><?php echo wp_kses_post( $title_text ); ?></h3>
 							</div>
 						</div>
@@ -298,7 +773,7 @@ class Wonkasoft_Bbb_Integration_Admin {
 							  <?php do_settings_sections( 'wonkasoft-tools-options-group' ); ?>
 
 								<?php
-									$registered_options = ( ! empty( get_option( 'custom_options_added' ) ) ) ? get_option( 'custom_options_added' ) : '';
+								$registered_options = ( ! empty( get_option( 'custom_options_added' ) ) ) ? get_option( 'custom_options_added' ) : '';
 
 								if ( ! empty( $registered_options ) ) :
 									foreach ( $registered_options as $register_option ) {
@@ -321,7 +796,7 @@ class Wonkasoft_Bbb_Integration_Admin {
 								?>
 							<div class="submitter">
 
-									  <?php submit_button( 'Save Settings' ); ?>
+								  <?php submit_button( 'Save Settings' ); ?>
 
 							</div>
 							</form>
@@ -348,14 +823,14 @@ class Wonkasoft_Bbb_Integration_Admin {
 										<div class="input-group mb-3">
 											<input class="form-control" type="text" id="new_option_api" name="new_option_api" placeholder="whos api..." value="" />
 										</div>
-									<?php
-									wp_nonce_field(
-										'wonkasoft_tools_options_ajax_post',
-										'new_option_nonce',
-										true,
-										true
-									);
-									?>
+								<?php
+								wp_nonce_field(
+									'wonkasoft_tools_options_ajax_post',
+									'new_option_nonce',
+									true,
+									true
+								);
+								?>
 								  </div>
 								  <div class="modal-footer">
 										<button type="button" class="btn wonka-btn btn-success" data-dismiss="modal" id="add_option_name">Add option <i class="fa fa-plus"></i></button>
@@ -368,7 +843,7 @@ class Wonkasoft_Bbb_Integration_Admin {
 					</div>
 
 				</div><!-- #wonkasoft-tools-options -->
-				<?php
+					<?php
 		}
 	}
 
@@ -406,58 +881,58 @@ class Wonkasoft_Bbb_Integration_Admin {
 
 		if ( 'ga' === $field['api'] ) :
 			$place_holder = ' placeholder="UA-XXXXXX-X"';
-		else :
-			$place_holder = ' placeholder="Paste api key..."';
-		endif;
-		$output .= '<div class="input-group">';
-		$output .= '<input type="password" id="' . esc_attr( $field['id'] ) . '" name="' . esc_attr( $field['name'] ) . '" class="' . esc_attr( $field['class'] ) . '" ' . $styles_set . implode( ' ', $custom_attributes ) . ' value="' . esc_attr( $field['value'] ) . '"' . $place_holder . ' /> ';
-		$output .= '<div class="input-group-append">';
-		$output .= '<button class="btn wonka-btn btn-danger" type="button" id="remove-' . esc_attr( $field['id'] ) . '"><i class="fa fa-minus"></i></button>';
-		$output .= '</div>';
-		$output .= '</div>';
-		if ( ! empty( $field['description'] ) && false !== $field['desc_tip'] ) {
-			$output .= '<span class="description">' . wp_kses_post( $field['description'] ) . '</span>';
-		}
+			else :
+				$place_holder = ' placeholder="Paste api key..."';
+			endif;
+			$output .= '<div class="input-group">';
+			$output .= '<input type="password" id="' . esc_attr( $field['id'] ) . '" name="' . esc_attr( $field['name'] ) . '" class="' . esc_attr( $field['class'] ) . '" ' . $styles_set . implode( ' ', $custom_attributes ) . ' value="' . esc_attr( $field['value'] ) . '"' . $place_holder . ' /> ';
+			$output .= '<div class="input-group-append">';
+			$output .= '<button class="btn wonka-btn btn-danger" type="button" id="remove-' . esc_attr( $field['id'] ) . '"><i class="fa fa-minus"></i></button>';
+			$output .= '</div>';
+			$output .= '</div>';
+			if ( ! empty( $field['description'] ) && false !== $field['desc_tip'] ) {
+				$output .= '<span class="description">' . wp_kses_post( $field['description'] ) . '</span>';
+			}
 
-		$output .= '</div>';
+			$output .= '</div>';
 
-		echo wp_kses(
-			$output,
-			array(
-				'label'  => array(
-					'for' => array(),
-				),
-				'input'  => array(
-					'class'       => array(),
-					'name'        => array(),
-					'id'          => array(),
-					'type'        => array(),
-					'value'       => array(),
-					'placeholder' => array(),
-				),
-				'span'   => array(
-					'class' => array(),
-				),
-				'div'    => array(
-					'class' => array(),
-				),
-				'button' => array(
-					'class' => array(),
-					'type'  => array(),
-					'id'    => array(),
-				),
-				'i'      => array(
-					'class' => array(),
-				),
-			)
-		);
+			echo wp_kses(
+				$output,
+				array(
+					'label'  => array(
+						'for' => array(),
+					),
+					'input'  => array(
+						'class'       => array(),
+						'name'        => array(),
+						'id'          => array(),
+						'type'        => array(),
+						'value'       => array(),
+						'placeholder' => array(),
+					),
+					'span'   => array(
+						'class' => array(),
+					),
+					'div'    => array(
+						'class' => array(),
+					),
+					'button' => array(
+						'class' => array(),
+						'type'  => array(),
+						'id'    => array(),
+					),
+					'i'      => array(
+						'class' => array(),
+					),
+				)
+			);
 	}
 
-	/**
-	 * This is for enqueuing the script for the theme options page only.
-	 *
-	 * @param  string $page contains the page name.
-	 */
+		/**
+		 * This is for enqueuing the script for the theme options page only.
+		 *
+		 * @param  string $page contains the page name.
+		 */
 	public function wonkasoft_tools_options_js( $page ) {
 
 		if ( preg_match( '/[wonkasoft]/', $page ) ) :
@@ -474,20 +949,20 @@ class Wonkasoft_Bbb_Integration_Admin {
 			wp_script_add_data( 'bootstrapjs', array( 'integrity', 'crossorigin' ), array( 'sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM', 'anonymous' ) );
 
 			wp_enqueue_script( 'wonkasoft-tools-options-js', WONKASOFT_PLUGIN_URL . 'includes/js/wonkasoft-tools-options-js.js', array( 'jquery' ), '20190819', true );
-		endif;
+			endif;
 	}
 
-	/**
-	 * This initiates the action link on the plugin screen.
-	 */
+		/**
+		 * This initiates the action link on the plugin screen.
+		 */
 	public function wonkasoft_init_plugin_screen_action_link() {
 		add_filter( 'plugin_action_links_' . WONKASOFT_BBB_INTEGRATION_BASENAME, 'wonkasoft_bbb_init_add_settings_link_filter', 10, 1 );
 		add_filter( 'plugin_row_meta', 'wonkasoft_bbb_init_add_description_link_filter', 10, 2 );
 	}
 
-	/**
-	 * This function is the callback ajax requests for this wonkasoft tools.
-	 */
+		/**
+		 * This function is the callback ajax requests for this wonkasoft tools.
+		 */
 	public function wonkasoft_plugins_ajax_requests() {
 		include_once plugin_dir_path( __FILE__ ) . 'partials/wonkasoft-plugins-ajax.php';
 	}

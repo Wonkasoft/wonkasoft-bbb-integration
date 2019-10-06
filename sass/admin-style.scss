@@ -34,6 +34,72 @@
 
 		.card {
 			max-width: 800px;
+
+			.card-title {
+				display: grid;
+
+				button {
+					justify-self: end;
+				}
+			}
+
+			.card-body {
+				padding: 0;
+			}
+		}
+	}
+}
+
+#conference-status {
+
+	table.table {
+
+		tbody {
+
+			label, code {
+				margin: 0;
+				padding: 0;
+				width: 90px;
+				height: 38px;
+				display: grid;
+				align-items: center;
+			}
+
+			pre {
+				width: 100%;
+				margin: 0;
+			}
+
+			code {
+				width: 70px;
+				justify-content: center;
+				padding: 0 8px;
+			}
+
+			th,td {
+				padding: 8px;
+			}
+
+			th {
+				width: auto;
+			}
+
+			td {
+				width: auto;
+
+				span.field-description {
+					margin-top: 8px;
+					width: 100%;
+
+					code {
+						padding: 8px;
+						width: auto;
+						height: unset;
+						display: inline-block;
+						white-space: nowrap;
+					}
+				}
+			}
 		}
 	}
 }
