@@ -168,7 +168,7 @@ class Wonkasoft_Bbb_Integration {
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-		$this->loader->add_action( 'admin_menu', $plugin_admin, 'wonkasoft_bbb_init_admin_menu' );
+		$this->loader->add_action( 'admin_menu', $plugin_admin, 'wonkasoft_bbb_init_admin_menu', 2 );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'wonkasoft_init_plugin_screen_action_link' );
 		$this->loader->add_action( 'init', $plugin_admin, 'wonkasoft_bbb_conference' );
 		$this->loader->add_action( 'wp_ajax_wonkasoft_plugins_ajax_requests', $plugin_admin, 'wonkasoft_plugins_ajax_requests' );

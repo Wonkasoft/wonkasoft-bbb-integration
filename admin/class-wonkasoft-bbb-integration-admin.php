@@ -129,6 +129,7 @@ class Wonkasoft_Bbb_Integration_Admin {
 
 			$this->wonkasoft_tools_add_options();
 			add_action( 'admin_enqueue_scripts', array( $this, 'wonkasoft_tools_options_js' ), 10, 1 );
+
 		}
 		/**
 		* This creates option page in the settings tab of admin menu
@@ -712,19 +713,26 @@ class Wonkasoft_Bbb_Integration_Admin {
 		 */
 	public function wonkasoft_tools_add_options() {
 
-		$registered_options = ( ! empty( get_option( 'custom_options_added' ) ) ) ? get_option( 'custom_options_added' ) : '';
+		$registered_options = ( ! empty( get_option( 'custom_options_added' ) ) ) ? get_option( 'custom_options_added' ) : array();
 
 		if ( ! empty( $registered_options ) ) {
+			foreach ( $registered_options as $key => $current_option ) :
+				if ( empty( $current_option['id'] ) ) :
+					unset( $registered_options[ $key ] );
+				endif;
+			endforeach;
 
 			foreach ( $registered_options as $register_option ) {
-				$set_args = array(
-					'type'              => 'string',
-					'description'       => $register_option['description'],
-					'sanitize_callback' => 'wonkasoft_tools_options_sanitize',
-					'show_in_rest'      => false,
-				);
+				if ( '' !== $register_option['id'] ) {
+					$set_args = array(
+						'type'              => 'string',
+						'description'       => $register_option['description'],
+						'sanitize_callback' => array( $this, 'wonkasoft_tools_options_sanitize' ),
+						'show_in_rest'      => false,
+					);
 
-				register_setting( 'wonkasoft-tools-options-group', $register_option['id'], $set_args );
+					register_setting( 'wonkasoft-tools-options-group', $register_option['id'], $set_args );
+				}
 			}
 		}
 	}

@@ -20,18 +20,20 @@ if ( isset( $_REQUEST['wonkasoft_tools_options'] ) && isset( $_REQUEST['ajax_typ
 		die( esc_html__( 'nonce failed', 'Wonkasoft_Bbb_Integration' ) );
 	}
 
-	$data = ( isset( $_REQUEST ) ) ? wp_kses_post( wp_unslash( $_REQUEST ) ) : null;
+	$data = ( isset( $_REQUEST ) ) ? wp_kses_data( wp_unslash( $_REQUEST ) ) : null;
+
 	if ( empty( $data ) ) :
 		return false;
 	endif;
 
+	$data = json_decode( json_encode( $data ), false, 512, JSON_OBJECT_AS_ARRAY );
+
 	// Pattern for option name sanitize.
 	$pattern = '/([ -])/';
 
-	// Checking for passed in data.
-	$data = json_decode( json_encode( $data ) );
-
 	unset( $data->action );
+	$data->msg = '';
+
 	$current_options = ( ! empty( get_option( 'custom_options_added' ) ) ) ? get_option( 'custom_options_added' ) : array();
 	foreach ( $current_options as $key => $current_option ) :
 		if ( $data->option_id === $current_option['id'] || empty( $current_option['id'] ) ) :
@@ -42,7 +44,7 @@ if ( isset( $_REQUEST['wonkasoft_tools_options'] ) && isset( $_REQUEST['ajax_typ
 	print_r( $data->remove );
 	echo "</pre>\n";
 
-	if ( 'false' !== $data->remove ) :
+	if ( $data->remove ) :
 		delete_option( $data->option_id );
 		unregister_setting( 'wonkasoft-tools-options-group', $data->option_id );
 		$data->current_options = $current_options;
@@ -64,6 +66,10 @@ if ( isset( $_REQUEST['wonkasoft_tools_options'] ) && isset( $_REQUEST['ajax_typ
 					)
 				);
 
+				echo "<pre>\n";
+				print_r( $data );
+				echo "</pre>\n";
+
 				$set_args = array(
 					'type'              => 'string',
 					'description'       => $data->option_description,
@@ -75,7 +81,7 @@ if ( isset( $_REQUEST['wonkasoft_tools_options'] ) && isset( $_REQUEST['ajax_typ
 				$data->current_options = $current_options;
 
 				ob_start();
-				$wonkasoft_bbb_integration_admin->wonkasoft_theme_option_parse(
+				$wonkasoft_bbb_integration_admin->wonkasoft_tool_option_parse(
 					array(
 						'id'            => $data->option_name,
 						'label'         => $data->option_label,
