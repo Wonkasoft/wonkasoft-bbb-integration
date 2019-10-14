@@ -65,10 +65,13 @@
                   if ( this.responseText && 'nonce failed' !== this.responseText ) 
                   {
                     var response = JSON.parse( this.responseText );
-                    console.log( response );
                     options_form.insertAdjacentHTML( 'beforeend', response.data.new_elements );
                     options_form.append( options_form.querySelector( '.submitter' ) );
                     load_remove_btn_event_listeners();
+                  }
+                  else
+                  {
+                    console.log( response );
                   }
                 }
               };

@@ -232,8 +232,9 @@ class Wonkasoft_Bbb_Integration_Admin {
 	public function wonkasoft_bbb_meta_box_content( $post, $args = null ) {
 		// Add nonce for security and authentication.
 		wp_nonce_field( 'wonkasoft_conference_save_nonce', 'wonkasoft_conference_status_nonce' );
-		$post_id   = $post->ID;
-		$post_meta = ( ! empty( get_post_meta( $post_id, 'conference_status', true ) ) ) ? wp_kses_allowed_html( get_post_meta( $post_id, 'conference_status', true ) ) : null;
+		$post_id              = $post->ID;
+		$post_meta            = ( ! empty( get_post_meta( $post_id, 'conference_status', true ) ) ) ? wp_kses_allowed_html( get_post_meta( $post_id, 'conference_status', true ) ) : null;
+		$post_meta_conference = ( ! empty( get_post_meta( $post_id, 'conference_created', false ) ) ) ? wp_kses_allowed_html( get_post_meta( $post_id, 'conference_created', false ) ) : null;
 
 		$post_meta = json_decode( json_encode( $post_meta ) );
 
@@ -252,13 +253,28 @@ class Wonkasoft_Bbb_Integration_Admin {
 		$output .= '</td>';
 		$output .= '</tr>';
 
+		if ( ! empty( $post_meta_conference ) ) {
+			$output .= '<tr>';
+			$output .= '<th scope="row">';
+			$output .= 'Conference info:';
+			$output .= '</th>';
+			$output .= '<td class="overflow-hidden">';
+			ob_start();
+				echo "<pre>\n";
+				print_r( json_encode( json_decode( array_shift( $post_meta_conference ) )->response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+				echo "</pre>\n";
+			$output .= ob_get_clean();
+			$output .= '</td>';
+			$output .= '</tr>';
+		}
+
 		$output .= '<tr>';
 		$output .= '<th scope="row">';
 		$output .= '<label for="meeting_id">meetingID:</label>';
 		$output .= '</th>';
 		$output .= '<td class="input-group">';
 		$output .= '<pre><code>' . $post->ID . '</code></pre>';
-		$output .= '<input type="hidden" value="' . $post->ID . '" id="meeting_id" name="conference_meetingID" />';
+		$output .= '<input type="hidden" value="meeting-' . $post->ID . '" id="meeting_id" name="conference_meetingID" />';
 		$output .= '<span class="field-description">A meeting ID that can be used to identify this meeting by the 3rd-party application.</span>';
 		$output .= '</td>';
 		$output .= '</tr>';
@@ -333,15 +349,17 @@ class Wonkasoft_Bbb_Integration_Admin {
 		$output .= '</td>';
 		$output .= '</tr>';
 
-		$output .= '<tr>';
-		$output .= '<th scope="row">';
-		$output .= '<label for="max_participants">maxParticipants:</label>';
-		$output .= '</th>';
-		$output .= '<td class="input-group">';
-		$output .= '<input type="text" class="form-control" id="max_participants" name="conference_maxParticipants" value="' . $post_meta->maxParticipants . '" />';
-		$output .= '<span class="field-description">Set the maximum number of users allowed to joined the conference at the same time.</span>';
-		$output .= '</td>';
-		$output .= '</tr>';
+		$output          .= '<tr>';
+		$output          .= '<th scope="row">';
+		$output          .= '<label for="max_participants">maxParticipants:</label>';
+		$output          .= '</th>';
+		$output          .= '<td class="input-group">';
+		$max_participants = ( ! empty( $post_meta->maxParticipants ) ) ? $post_meta->maxParticipants : 20;
+		$output          .= '<input type="number" class="form-control" id="max_participants" name="conference_maxParticipants" value="' . $max_participants . '
+		" />';
+		$output          .= '<span class="field-description">Set the maximum number of users allowed to joined the conference at the same time.</span>';
+		$output          .= '</td>';
+		$output          .= '</tr>';
 
 		$output .= '<tr>';
 		$output .= '<th scope="row">';
@@ -363,23 +381,35 @@ class Wonkasoft_Bbb_Integration_Admin {
 		$output .= '</td>';
 		$output .= '</tr>';
 
-		$output .= '<tr>';
-		$output .= '<th scope="row">';
-		$output .= '<label for="duration">duration:</label>';
-		$output .= '</th>';
-		$output .= '<td class="input-group">';
-		$output .= '<input type="text" class="form-control" id="duration" name="conference_duration" value="' . $post_meta->duration . '" />';
-		$output .= '<span class="field-description">The maximum length (in minutes) for the meeting.</span>';
-		$output .= '</td>';
-		$output .= '</tr>';
+		$output  .= '<tr>';
+		$output  .= '<th scope="row">';
+		$output  .= '<label for="duration">duration:</label>';
+		$output  .= '</th>';
+		$output  .= '<td class="input-group">';
+		$duration = ( ! empty( $post_meta->duration ) ) ? $post_meta->duration : 600;
+		$output  .= '<input type="number" class="form-control" id="duration" name="conference_duration" value="' . $duration . '" />';
+		$output  .= '<span class="field-description">The maximum length (in minutes) for the meeting.</span>';
+		$output  .= '</td>';
+		$output  .= '</tr>';
 
-		$output .= '<tr>';
-		$output .= '<th scope="row">';
-		$output .= '<label for="is_breakout">isBreakout:</label>';
-		$output .= '</th>';
-		$output .= '<td class="input-group">';
-		$output .= '<input type="text" class="form-control" id="is_breakout" name="conference_isBreakout" value="' . $post_meta->isBreakout . '" />';
-		$output .= '<span class="field-description">Must be set to true to create a breakout room.</span>';
+		$output     .= '<tr>';
+		$output     .= '<th scope="row">';
+		$output     .= '<label for="is_breakout">isBreakout:</label>';
+		$output     .= '</th>';
+		$output     .= '<td class="input-group form-check">';
+		$output     .= '<label class="form-check-label field-description">Must be set to true to create a breakout room.';
+		$is_breakout = ( ! empty( $post_meta->isBreakout ) ) ? $post_meta->isBreakout : false;
+		if ( $is_breakout ) {
+
+			$output .= '<input type="checkbox" class="form-check-input" id="is_breakout" name="conference_isBreakout" value="' . $is_breakout . '" selected />';
+
+		} else {
+
+			$output .= '<input type="checkbox" class="form-check-input" id="is_breakout" name="conference_isBreakout" />';
+
+		}
+
+		$output .= '</label>';
 		$output .= '</td>';
 		$output .= '</tr>';
 
@@ -398,18 +428,28 @@ class Wonkasoft_Bbb_Integration_Admin {
 		$output .= '<label for="sequence">sequence:</label>';
 		$output .= '</th>';
 		$output .= '<td class="input-group">';
-		$output .= '<input type="text" class="form-control" id="sequence" name="conference_sequence" value="' . $post_meta->sequence . '" />';
+		$output .= '<input type="number" class="form-control" id="sequence" name="conference_sequence" value="' . $post_meta->sequence . '" />';
 		$output .= '<span class="field-description">The sequence number of the breakout room.</span>';
 		$output .= '</td>';
 		$output .= '</tr>';
 
-		$output .= '<tr>';
-		$output .= '<th scope="row">';
-		$output .= '<label for="free_join">freeJoin:</label>';
-		$output .= '</th>';
-		$output .= '<td class="input-group">';
-		$output .= '<input type="text" class="form-control" id="free_join" name="conference_freeJoin" value="' . $post_meta->freeJoin . '" />';
-		$output .= '<span class="field-description">If set to true, the client will give the user the choice to choose the breakout rooms he wants to join.</span>';
+		$output   .= '<tr>';
+		$output   .= '<th scope="row">';
+		$output   .= '<label for="free_join">freeJoin:</label>';
+		$output   .= '</th>';
+		$output   .= '<td class="input-group form-check">';
+		$output   .= '<label class="form-check-label field-description">If set to true, the client will give the user the choice to choose the breakout rooms he wants to join.';
+		$free_join = ( ! empty( $post_meta->freeJoin ) ) ? $post_meta->freeJoin : false;
+		if ( $is_breakout ) {
+
+			$output .= '<input type="checkbox" class="form-check-input" id="free_join" name="conference_freeJoin" value="' . $post_meta->freeJoin . '" selected />';
+
+		} else {
+
+			$output .= '<input type="checkbox" class="form-check-input" id="free_join" name="conference_freeJoin" />';
+
+		}
+		$output .= '</label>';
 		$output .= '</td>';
 		$output .= '</tr>';
 
@@ -510,16 +550,6 @@ class Wonkasoft_Bbb_Integration_Admin {
 		$output .= '<td class="input-group">';
 		$output .= '<input type="text" class="form-control" id="mute_on_start" name="conference_muteOnStart" value="' . $post_meta->muteOnStart . '" />';
 		$output .= '<span class="field-description">Setting <code>muteOnStart=true</code> will mute all users when the meeting starts.</span>';
-		$output .= '</td>';
-		$output .= '</tr>';
-
-		$output .= '<tr>';
-		$output .= '<th scope="row">';
-		$output .= '<label for="allow_mods_to_unmute_users">allowModsToUnmuteUsers:</label>';
-		$output .= '</th>';
-		$output .= '<td class="input-group">';
-		$output .= '<input type="text" class="form-control" id="allow_mods_to_unmute_users" name="conference_allowModsToUnmuteUsers" value="' . $post_meta->allowModsToUnmuteUsers . '" />';
-		$output .= '<span class="field-description">Default <code>allowModsToUnmuteUsers=false</code>. Setting to <code>allowModsToUnmuteUsers=true</code> will allow moderators to unmute other users in the meeting.</span>';
 		$output .= '</td>';
 		$output .= '</tr>';
 
@@ -668,11 +698,13 @@ class Wonkasoft_Bbb_Integration_Admin {
 					'class' => array(),
 				),
 				'input' => array(
-					'id'    => array(),
-					'name'  => array(),
-					'class' => array(),
-					'type'  => array(),
-					'value' => array(),
+					'id'       => array(),
+					'name'     => array(),
+					'class'    => array(),
+					'type'     => array(),
+					'value'    => array(),
+					'required' => array(),
+					'selected' => array(),
 				),
 			)
 		);
@@ -705,6 +737,27 @@ class Wonkasoft_Bbb_Integration_Admin {
 
 		if ( ! empty( $data ) ) {
 			update_post_meta( $post_id, 'conference_status', $data );
+			if ( 'publish' === get_post_status( $post_id ) ) {
+
+				$bbb_init   = new Wonkasoft_BBB_Integration_Api( $data );
+				$conference = $bbb_init->bbb_create();
+
+				$conference = json_encode( $conference );
+				update_post_meta( $post_id, 'conference_created', $conference );
+			} else {
+
+				$bbb_init   = new Wonkasoft_BBB_Integration_Api( $data );
+				$is_running = $bbb_init->bbb_is_meeting_running();
+				$is_running = json_decode( json_encode( $is_running ) );
+					update_post_meta( $post_id, 'conference_current', $is_running );
+				if ( $is_running->running ) {
+
+					$conference = $bbb_init->bbb_end_meeting();
+
+					$conference = json_encode( $conference );
+					update_post_meta( $post_id, 'conference_current', $conference );
+				}
+			}
 		}
 	}
 
@@ -888,19 +941,38 @@ class Wonkasoft_Bbb_Integration_Admin {
 		}
 
 		if ( 'ga' === $field['api'] ) :
+
 			$place_holder = ' placeholder="UA-XXXXXX-X"';
-			else :
-				$place_holder = ' placeholder="Paste api key..."';
-			endif;
+
+		elseif ( strpos( strtolower( $field['description'] ), 'url', 0 ) !== false || strpos( strtolower( $field['api'] ), 'url', 0 ) !== false ) :
+
+			$place_holder = ' placeholder="Paste url here..."';
+
+		else :
+
+			$place_holder = ' placeholder="Paste api key..."';
+
+		endif;
+
 			$output .= '<div class="input-group">';
+
+		if ( strpos( strtolower( $field['description'] ), 'url', 0 ) !== false || strpos( strtolower( $field['api'] ), 'url', 0 ) !== false ) :
+
+			$output .= '<input type="text" id="' . esc_attr( $field['id'] ) . '" name="' . esc_attr( $field['name'] ) . '" class="' . esc_attr( $field['class'] ) . '" ' . $styles_set . implode( ' ', $custom_attributes ) . ' value="' . esc_attr( $field['value'] ) . '"' . $place_holder . ' /> ';
+
+		else :
+
 			$output .= '<input type="password" id="' . esc_attr( $field['id'] ) . '" name="' . esc_attr( $field['name'] ) . '" class="' . esc_attr( $field['class'] ) . '" ' . $styles_set . implode( ' ', $custom_attributes ) . ' value="' . esc_attr( $field['value'] ) . '"' . $place_holder . ' /> ';
+
+		endif;
+
 			$output .= '<div class="input-group-append">';
 			$output .= '<button class="btn wonka-btn btn-danger" type="button" id="remove-' . esc_attr( $field['id'] ) . '"><i class="fa fa-minus"></i></button>';
 			$output .= '</div>';
 			$output .= '</div>';
-			if ( ! empty( $field['description'] ) && false !== $field['desc_tip'] ) {
-				$output .= '<span class="description">' . wp_kses_post( $field['description'] ) . '</span>';
-			}
+		if ( ! empty( $field['description'] ) && false !== $field['desc_tip'] ) {
+			$output .= '<span class="description">' . wp_kses_post( $field['description'] ) . '</span>';
+		}
 
 			$output .= '</div>';
 

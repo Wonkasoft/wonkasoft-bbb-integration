@@ -59,7 +59,6 @@
 			label, code {
 				margin: 0;
 				padding: 0;
-				width: 90px;
 				height: 38px;
 				display: grid;
 				align-items: center;
@@ -99,6 +98,11 @@
 						white-space: nowrap;
 					}
 				}
+			}
+
+			.overflow-hidden {
+				max-width: 100%;
+				overflow: hidden;
 			}
 		}
 	}

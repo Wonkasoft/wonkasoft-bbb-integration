@@ -528,56 +528,56 @@ class Wonkasoft_BBB_Integration_Api {
 	 */
 	public function __construct( $data = null ) {
 
-		$this->api_url                                 = ( ! empty( get_option( 'wonkasoft_bbb_api_url', true ) ) ) ? esc_url( get_option( 'wonkasoft_bbb_api_url', true ) ) : null;
-		$this->shared_secret                           = ( ! empty( get_option( 'wonkasoft_bbb_shared_secret', true ) ) ) ? wp_unslash( get_option( 'wonkasoft_bbb_shared_secret', true ) ) : null;
+		$this->api_url                                 = ( ! empty( get_option( 'bbb_url', true ) ) ) ? esc_url( get_option( 'bbb_url', true ) ) : null;
+		$this->shared_secret                           = ( ! empty( get_option( 'wonkasoft_bbb_integration_api_key', true ) ) ) ? wp_unslash( get_option( 'wonkasoft_bbb_integration_api_key', true ) ) : null;
 		$this->name                                    = ( ! empty( $data['name'] ) ) ? wp_unslash( $data['name'] ) : null;
-		$this->meeting_id                              = ( ! empty( $data['meeting_id'] ) ) ? wp_unslash( $data['meeting_id'] ) : null;
-		$this->attendee_pw                             = ( ! empty( $data['attendee_pw'] ) ) ? wp_unslash( $data['attendee_pw'] ) : null;
-		$this->moderator_pw                            = ( ! empty( $data['moderator_pw'] ) ) ? wp_unslash( $data['moderator_pw'] ) : null;
+		$this->meeting_id                              = ( ! empty( $data['meetingID'] ) ) ? wp_unslash( $data['meetingID'] ) : null;
+		$this->attendee_pw                             = ( ! empty( $data['attendeePW'] ) ) ? wp_unslash( $data['attendeePW'] ) : null;
+		$this->moderator_pw                            = ( ! empty( $data['moderatorPW'] ) ) ? wp_unslash( $data['moderatorPW'] ) : null;
 		$this->welcome                                 = ( ! empty( $data['welcome'] ) ) ? wp_unslash( $data['welcome'] ) : null;
-		$this->dial_number                             = ( ! empty( $data['dial_number'] ) ) ? wp_unslash( $data['dial_number'] ) : null;
-		$this->voice_bridge                            = ( ! empty( $data['voice_bridge'] ) ) ? wp_unslash( $data['voice_bridge'] ) : null;
-		$this->web_voice                               = ( ! empty( $data['web_voice'] ) ) ? wp_unslash( $data['web_voice'] ) : null;
-		$this->max_participants                        = ( ! empty( $data['max_participants'] ) ) ? wp_unslash( $data['max_participants'] ) : 20;
-		$this->logout_url                              = ( ! empty( $data['logout_url'] ) ) ? wp_unslash( $data['logout_url'] ) : null;
+		$this->dial_number                             = ( ! empty( $data['dialNumber'] ) ) ? wp_unslash( $data['dialNumber'] ) : null;
+		$this->voice_bridge                            = ( ! empty( $data['voiceBridge'] ) ) ? wp_unslash( $data['voiceBridge'] ) : null;
+		$this->web_voice                               = ( ! empty( $data['webVoice'] ) ) ? wp_unslash( $data['webVoice'] ) : null;
+		$this->max_participants                        = ( ! empty( $data['maxParticipants'] ) ) ? wp_unslash( $data['maxParticipants'] ) : 20;
+		$this->logout_url                              = ( ! empty( $data['logoutURL'] ) ) ? wp_unslash( $data['logoutURL'] ) : null;
 		$this->record                                  = ( ! empty( $data['record'] ) ) ? wp_unslash( $data['record'] ) : null;
 		$this->duration                                = ( ! empty( $data['duration'] ) ) ? wp_unslash( $data['duration'] ) : null;
-		$this->is_breakout                             = ( ! empty( $data['is_breakout'] ) ) ? wp_unslash( $data['is_breakout'] ) : null;
-		$this->parent_meeting_id                       = ( ! empty( $data['parent_meeting_id'] ) ) ? wp_unslash( $data['parent_meeting_id'] ) : null;
+		$this->is_breakout                             = ( ! empty( $data['isBreakout'] ) ) ? wp_unslash( $data['isBreakout'] ) : null;
+		$this->parent_meeting_id                       = ( ! empty( $data['parentMeetingID'] ) ) ? wp_unslash( $data['parentMeetingID'] ) : null;
 		$this->sequence                                = ( ! empty( $data['sequence'] ) ) ? wp_unslash( $data['sequence'] ) : null;
-		$this->free_join                               = ( ! empty( $data['free_join'] ) ) ? wp_unslash( $data['free_join'] ) : null;
+		$this->free_join                               = ( ! empty( $data['freeJoin'] ) ) ? wp_unslash( $data['freeJoin'] ) : null;
 		$this->meta                                    = ( ! empty( $data['meta'] ) ) ? wp_unslash( $data['meta'] ) : null;
-		$this->moderator_only_message                  = ( ! empty( $data['moderator_only_message'] ) ) ? wp_unslash( $data['moderator_only_message'] ) : null;
-		$this->auto_start_recording                    = ( ! empty( $data['auto_start_recording'] ) ) ? wp_unslash( $data['auto_start_recording'] ) : null;
-		$this->allow_start_stop_recording              = ( ! empty( $data['allow_start_stop_recording'] ) ) ? wp_unslash( $data['allow_start_stop_recording'] ) : null;
-		$this->webcams_only_for_moderator              = ( ! empty( $data['webcams_only_for_moderator'] ) ) ? wp_unslash( $data['webcams_only_for_moderator'] ) : null;
+		$this->moderator_only_message                  = ( ! empty( $data['moderatorOnlyMessage'] ) ) ? wp_unslash( $data['moderatorOnlyMessage'] ) : null;
+		$this->auto_start_recording                    = ( ! empty( $data['autoStartRecording'] ) ) ? wp_unslash( $data['autoStartRecording'] ) : null;
+		$this->allow_start_stop_recording              = ( ! empty( $data['allowStartStopRecording'] ) ) ? wp_unslash( $data['allowStartStopRecording'] ) : null;
+		$this->webcams_only_for_moderator              = ( ! empty( $data['webcamsOnlyForModerator'] ) ) ? wp_unslash( $data['webcamsOnlyForModerator'] ) : null;
 		$this->logo                                    = ( ! empty( $data['logo'] ) ) ? wp_unslash( $data['logo'] ) : null;
-		$this->banner_text                             = ( ! empty( $data['banner_text'] ) ) ? wp_unslash( $data['banner_text'] ) : null;
-		$this->banner_color                            = ( ! empty( $data['banner_color'] ) ) ? wp_unslash( $data['banner_color'] ) : null;
+		$this->banner_text                             = ( ! empty( $data['bannerText'] ) ) ? wp_unslash( $data['bannerText'] ) : null;
+		$this->banner_color                            = ( ! empty( $data['bannerColor'] ) ) ? wp_unslash( $data['bannerColor'] ) : null;
 		$this->copyright                               = ( ! empty( $data['copyright'] ) ) ? wp_unslash( $data['copyright'] ) : null;
-		$this->mute_on_start                           = ( ! empty( $data['mute_on_start'] ) ) ? wp_unslash( $data['mute_on_start'] ) : null;
-		$this->allow_mods_to_unmute_users              = ( ! empty( $data['allow_mods_to_unmute_users'] ) ) ? wp_unslash( $data['allow_mods_to_unmute_users'] ) : null;
-		$this->lock_settings_disable_cam               = ( ! empty( $data['lock_settings_disable_cam'] ) ) ? wp_unslash( $data['lock_settings_disable_cam'] ) : null;
-		$this->lock_settings_disable_mic               = ( ! empty( $data['lock_settings_disable_mic'] ) ) ? wp_unslash( $data['lock_settings_disable_mic'] ) : null;
-		$this->lock_settings_disable_private_chat      = ( ! empty( $data['lock_settings_disable_private_chat'] ) ) ? wp_unslash( $data['lock_settings_disable_private_chat'] ) : null;
-		$this->lock_settings_disable_public_chat       = ( ! empty( $data['lock_settings_disable_public_chat'] ) ) ? wp_unslash( $data['lock_settings_disable_public_chat'] ) : null;
-		$this->lock_settings_disable_note              = ( ! empty( $data['lock_settings_disable_note'] ) ) ? wp_unslash( $data['lock_settings_disable_note'] ) : null;
-		$this->lock_settings_locked_layout             = ( ! empty( $data['lock_settings_locked_layout'] ) ) ? wp_unslash( $data['lock_settings_locked_layout'] ) : null;
-		$this->lock_settings_lock_on_join              = ( ! empty( $data['lock_settings_lock_on_join'] ) ) ? wp_unslash( $data['lock_settings_lock_on_join'] ) : null;
-		$this->lock_settings_lock_on_join_configurable = ( ! empty( $data['lock_settings_lock_on_join_configurable'] ) ) ? wp_unslash( $data['lock_settings_lock_on_join_configurable'] ) : null;
-		$this->guest_policy                            = ( ! empty( $data['guest_policy'] ) ) ? wp_unslash( $data['guest_policy'] ) : null;
+		$this->mute_on_start                           = ( ! empty( $data['muteOnStart'] ) ) ? wp_unslash( $data['muteOnStart'] ) : null;
+		$this->allow_mods_to_unmute_users              = ( ! empty( $data['allowModsToUnmuteUsers'] ) ) ? wp_unslash( $data['allowModsToUnmuteUsers'] ) : null;
+		$this->lock_settings_disable_cam               = ( ! empty( $data['lockSettingsDisableCam'] ) ) ? wp_unslash( $data['lockSettingsDisableCam'] ) : null;
+		$this->lock_settings_disable_mic               = ( ! empty( $data['lockSettingsDisableMic'] ) ) ? wp_unslash( $data['lockSettingsDisableMic'] ) : null;
+		$this->lock_settings_disable_private_chat      = ( ! empty( $data['lockSettingsDisablePrivateChat'] ) ) ? wp_unslash( $data['lockSettingsDisablePrivateChat'] ) : null;
+		$this->lock_settings_disable_public_chat       = ( ! empty( $data['lockSettingsDisablePublicChat'] ) ) ? wp_unslash( $data['lockSettingsDisablePublicChat'] ) : null;
+		$this->lock_settings_disable_note              = ( ! empty( $data['lockSettingsDisableNote'] ) ) ? wp_unslash( $data['lockSettingsDisableNote'] ) : null;
+		$this->lock_settings_locked_layout             = ( ! empty( $data['lockSettingsLockedLayout'] ) ) ? wp_unslash( $data['lockSettingsLockedLayout'] ) : null;
+		$this->lock_settings_lock_on_join              = ( ! empty( $data['lockSettingsLockOnJoin'] ) ) ? wp_unslash( $data['lockSettingsLockOnJoin'] ) : null;
+		$this->lock_settings_lock_on_join_configurable = ( ! empty( $data['lockSettingsLockOnJoinConfigurable'] ) ) ? wp_unslash( $data['lockSettingsLockOnJoinConfigurable'] ) : null;
+		$this->guest_policy                            = ( ! empty( $data['guestPolicy'] ) ) ? wp_unslash( $data['guestPolicy'] ) : null;
 
-		$this->full_name      = ( ! empty( $data['full_name'] ) ) ? wp_unslash( $data['full_name'] ) : null;
+		$this->full_name      = ( ! empty( $data['fullName'] ) ) ? wp_unslash( $data['fullName'] ) : null;
 		$this->password       = ( ! empty( $data['password'] ) ) ? wp_unslash( $data['password'] ) : null;
-		$this->create_time    = ( ! empty( $data['create_time'] ) ) ? wp_unslash( $data['create_time'] ) : null;
-		$this->user_id        = ( ! empty( $data['user_id'] ) ) ? wp_unslash( $data['user_id'] ) : null;
-		$this->web_voice_conf = ( ! empty( $data['web_voice_conf'] ) ) ? wp_unslash( $data['web_voice_conf'] ) : null;
-		$this->config_token   = ( ! empty( $data['config_token'] ) ) ? wp_unslash( $data['config_token'] ) : null;
-		$this->default_layout = ( ! empty( $data['default_layout'] ) ) ? wp_unslash( $data['default_layout'] ) : null;
-		$this->avatar_url     = ( ! empty( $data['avatar_url'] ) ) ? wp_unslash( $data['avatar_url'] ) : null;
+		$this->create_time    = ( ! empty( $data['createTime'] ) ) ? wp_unslash( $data['createTime'] ) : null;
+		$this->user_id        = ( ! empty( $data['userID'] ) ) ? wp_unslash( $data['userID'] ) : null;
+		$this->web_voice_conf = ( ! empty( $data['webVoiceConf'] ) ) ? wp_unslash( $data['webVoiceConf'] ) : null;
+		$this->config_token   = ( ! empty( $data['configToken'] ) ) ? wp_unslash( $data['configToken'] ) : null;
+		$this->default_layout = ( ! empty( $data['defaultLayout'] ) ) ? wp_unslash( $data['defaultLayout'] ) : null;
+		$this->avatar_url     = ( ! empty( $data['avatarURL'] ) ) ? wp_unslash( $data['avatarURL'] ) : null;
 		$this->redirect       = ( ! empty( $data['redirect'] ) ) ? wp_unslash( $data['redirect'] ) : null;
-		$this->client_url     = ( ! empty( $data['client_url'] ) ) ? wp_unslash( $data['client_url'] ) : null;
-		$this->join_via_html5 = ( ! empty( $data['join_via_html5'] ) ) ? wp_unslash( $data['join_via_html5'] ) : null;
+		$this->client_url     = ( ! empty( $data['clientURL'] ) ) ? wp_unslash( $data['clientURL'] ) : null;
+		$this->join_via_html5 = ( ! empty( $data['joinViaHtml5'] ) ) ? wp_unslash( $data['joinViaHtml5'] ) : null;
 		$this->guest          = ( ! empty( $data['guest'] ) ) ? wp_unslash( $data['guest'] ) : null;
 
 	}
@@ -639,19 +639,20 @@ class Wonkasoft_BBB_Integration_Api {
 
 		$checksum = hash( 'sha256', $this->call_name . $query_string . $this->shared_secret );
 
-			$ch  = curl_init();
-			$url = $this->api_url . $this->call_name . '?' . $query_string . '&checksum=' . $checksum;
-			curl_setopt( $ch, CURLOPT_URL, $url );
-			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-			curl_setopt( $ch, CURLOPT_HEADER, false );
-			curl_setopt( $ch, CURLPROTO_HTTPS, true );
+		$ch  = curl_init();
+		$url = $this->api_url . $this->call_name . '?' . $query_string . '&checksum=' . $checksum;
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_HEADER, false );
+		curl_setopt( $ch, CURLPROTO_HTTPS, true );
 
-			$response = curl_exec( $ch );
+		$response = curl_exec( $ch );
 
 		if ( false === $response ) :
 			$error_obj = array(
 				'error'  => curl_error( $ch ),
 				'status' => 'failed',
+				'url'    => $url,
 			);
 
 			curl_close( $ch );
@@ -660,11 +661,18 @@ class Wonkasoft_BBB_Integration_Api {
 
 			return $error_obj;
 		else :
+
+			$xml_response   = simplexml_load_string( $response );
+			$json_response  = json_encode( $xml_response );
+			$array_response = json_decode( $json_response, true );
+			$data_obj       = array(
+				'response' => $array_response,
+				'url'      => $url,
+			);
+
 			curl_close( $ch );
 
-			echo "<pre>\n";
-			print_r( $response );
-			echo "</pre>\n";
+			return $data_obj;
 
 		endif;
 	}
@@ -696,6 +704,152 @@ class Wonkasoft_BBB_Integration_Api {
 
 		$checksum = hash( 'sha256', $this->call_name . $query_string . $this->shared_secret );
 
+		$ch  = curl_init();
 		$url = $this->api_url . $this->call_name . '?' . $query_string . '&checksum=' . $checksum;
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_HEADER, false );
+		curl_setopt( $ch, CURLPROTO_HTTPS, true );
+
+		$response = curl_exec( $ch );
+
+		if ( false === $response ) :
+			$error_obj = array(
+				'error'  => curl_error( $ch ),
+				'status' => 'failed',
+				'url'    => $url,
+			);
+
+			curl_close( $ch );
+
+			$error_obj = json_decode( json_encode( $error_obj ) );
+
+			return $error_obj;
+		else :
+
+			$xml_response   = simplexml_load_string( $response );
+			$json_response  = json_encode( $xml_response );
+			$array_response = json_decode( $json_response, true );
+			$data_obj       = array(
+				'response' => $array_response,
+				'url'      => $url,
+			);
+
+			curl_close( $ch );
+
+			return $data_obj;
+
+		endif;
+	}
+
+	/**
+	 * Check if the meeting is running.
+	 *
+	 * @return array returns the response.
+	 */
+	public function bbb_is_meeting_running() {
+		$this->call_name = 'isMeetingRunning';
+
+		$query_string = array(
+			'meetingID' => $this->meeting_id,
+		);
+
+		$query_string = json_decode( json_encode( $query_string ) );
+		$query_string = http_build_query( $query_string );
+
+		$checksum = hash( 'sha256', $this->call_name . $query_string . $this->shared_secret );
+
+		$ch  = curl_init();
+		$url = $this->api_url . $this->call_name . '?' . $query_string . '&checksum=' . $checksum;
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_HEADER, false );
+		curl_setopt( $ch, CURLPROTO_HTTPS, true );
+
+		$response = curl_exec( $ch );
+
+		if ( false === $response ) :
+			$error_obj = array(
+				'error'  => curl_error( $ch ),
+				'status' => 'failed',
+				'url'    => $url,
+			);
+
+			curl_close( $ch );
+
+			$error_obj = json_decode( json_encode( $error_obj ) );
+
+			return $error_obj;
+		else :
+
+			$xml_response   = simplexml_load_string( $response );
+			$json_response  = json_encode( $xml_response );
+			$array_response = json_decode( $json_response, true );
+			$data_obj       = array(
+				'response' => $array_response,
+				'url'      => $url,
+			);
+
+			curl_close( $ch );
+
+			return $data_obj;
+
+		endif;
+	}
+
+	/**
+	 * This ends the meeting.
+	 *
+	 * @return array returns the response.
+	 */
+	public function bbb_end_meeting() {
+		$this->call_name = 'end';
+
+		$query_string = array(
+			'meetingID' => $this->meeting_id,
+			'password'  => $this->moderator_pw,
+		);
+
+		$query_string = json_decode( json_encode( $query_string ) );
+		$query_string = http_build_query( $query_string );
+
+		$checksum = hash( 'sha256', $this->call_name . $query_string . $this->shared_secret );
+
+		$ch  = curl_init();
+		$url = $this->api_url . $this->call_name . '?' . $query_string . '&checksum=' . $checksum;
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_HEADER, false );
+		curl_setopt( $ch, CURLPROTO_HTTPS, true );
+
+		$response = curl_exec( $ch );
+
+		if ( false === $response ) :
+			$error_obj = array(
+				'error'  => curl_error( $ch ),
+				'status' => 'failed',
+				'url'    => $url,
+			);
+
+			curl_close( $ch );
+
+			$error_obj = json_decode( json_encode( $error_obj ) );
+
+			return $error_obj;
+		else :
+
+			$xml_response   = simplexml_load_string( $response );
+			$json_response  = json_encode( $xml_response );
+			$array_response = json_decode( $json_response, true );
+			$data_obj       = array(
+				'response' => $array_response,
+				'url'      => $url,
+			);
+
+			curl_close( $ch );
+
+			return $data_obj;
+
+		endif;
 	}
 }
