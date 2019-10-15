@@ -522,12 +522,20 @@ class Wonkasoft_BBB_Integration_Api {
 	public $guest = '';
 
 	/**
+	 * Hold data of this instance.
+	 *
+	 * @var $data
+	 */
+	public $data = array();
+
+	/**
 	 * This is the constructor for this class.
 	 *
 	 * @param array $data contains the passed in parameters.
 	 */
 	public function __construct( $data = null ) {
 
+		$this->data                                    = $data;
 		$this->api_url                                 = ( ! empty( get_option( 'bbb_url', true ) ) ) ? esc_url( get_option( 'bbb_url', true ) ) : null;
 		$this->shared_secret                           = ( ! empty( get_option( 'wonkasoft_bbb_integration_api_key', true ) ) ) ? wp_unslash( get_option( 'wonkasoft_bbb_integration_api_key', true ) ) : null;
 		$this->name                                    = ( ! empty( $data['name'] ) ) ? wp_unslash( $data['name'] ) : null;
@@ -743,6 +751,140 @@ class Wonkasoft_BBB_Integration_Api {
 	}
 
 	/**
+	 * This function is for conference join as attendee.
+	 */
+	public function bbb_join_as_attendee( $current_call = null ) {
+		$this->call_name = 'join';
+
+		$query_string = array(
+			'fullName'      => ( ! empty( $current_call->fullName ) ) ? $current_call->fullName : $this->full_name,
+			'meetingID'     => ( ! empty( $current_call->meetingID ) ) ? $current_call->meetingID : $this->meeting_id,
+			'password'      => ( ! empty( $current_call->attendeePW ) ) ? $current_call->attendeePW : $this->attendee_pw,
+			'createTime'    => ( ! empty( $current_call->createTime ) ) ? $current_call->createTime : $this->create_time,
+			'userID'        => ( ! empty( $current_call->userID ) ) ? $current_call->userID : $this->user_id,
+			'webVoiceConf'  => ( ! empty( $current_call->webVoiceConf ) ) ? $current_call->webVoiceConf : $this->web_voice_conf,
+			'configToken'   => ( ! empty( $current_call->configToken ) ) ? $current_call->configToken : $this->config_token,
+			'defaultLayout' => ( ! empty( $current_call->moderatorPW ) ) ? $current_call->defaultLayout : $this->default_layout,
+			'avatarURL'     => ( ! empty( $current_call->avatarURL ) ) ? $current_call->avatarURL : $this->avatar_url,
+			'redirect'      => ( ! empty( $current_call->redirect ) ) ? $current_call->redirect : $this->redirect,
+			'clientURL'     => ( ! empty( $current_call->clientURL ) ) ? $current_call->clientURL : $this->client_url,
+			'joinViaHtml5'  => ( ! empty( $current_call->joinViaHtml5 ) ) ? $current_call->joinViaHtml5 : $this->join_via_html5,
+			'guest'         => ( ! empty( $current_call->guest ) ) ? $current_call->guest : $this->guest,
+		);
+
+		$query_string = json_decode( json_encode( $query_string ) );
+		$query_string = http_build_query( $query_string );
+
+		$checksum = hash( 'sha256', $this->call_name . $query_string . $this->shared_secret );
+
+		$ch  = curl_init();
+		$url = $this->api_url . $this->call_name . '?' . $query_string . '&checksum=' . $checksum;
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_HEADER, false );
+		curl_setopt( $ch, CURLPROTO_HTTPS, true );
+
+		$response = curl_exec( $ch );
+
+		if ( false === $response ) :
+			$error_obj = array(
+				'error'  => curl_error( $ch ),
+				'status' => 'failed',
+				'url'    => $url,
+			);
+
+			curl_close( $ch );
+
+			$error_obj = json_decode( json_encode( $error_obj ) );
+
+			return $error_obj;
+		else :
+
+			$xml_response   = simplexml_load_string( $response );
+			$json_response  = json_encode( $xml_response );
+			$array_response = json_decode( $json_response, true );
+			$data_obj       = array(
+				'response' => $array_response,
+				'url'      => $url,
+			);
+
+			curl_close( $ch );
+
+			return $data_obj;
+
+		endif;
+	}
+
+	/**
+	 * This function is for conference join as moderator.
+	 */
+	public function bbb_join_as_moderator( $current_call = null ) {
+		$this->call_name = 'join';
+
+		if ( ! empty( $current_call ) ) {
+			$current_call = json_decode( json_encode( $current_call ) );
+		}
+
+		$query_string = array(
+			'fullName'      => ( ! empty( $current_call->fullName ) ) ? $current_call->fullName : $this->full_name,
+			'meetingID'     => ( ! empty( $current_call->meetingID ) ) ? $current_call->meetingID : $this->meeting_id,
+			'password'      => ( ! empty( $current_call->moderatorPW ) ) ? $current_call->moderatorPW : $this->moderator_pw,
+			'createTime'    => ( ! empty( $current_call->createTime ) ) ? $current_call->createTime : $this->create_time,
+			'userID'        => ( ! empty( $current_call->userID ) ) ? $current_call->userID : $this->user_id,
+			'webVoiceConf'  => ( ! empty( $current_call->webVoiceConf ) ) ? $current_call->webVoiceConf : $this->web_voice_conf,
+			'configToken'   => ( ! empty( $current_call->configToken ) ) ? $current_call->configToken : $this->config_token,
+			'defaultLayout' => ( ! empty( $current_call->moderatorPW ) ) ? $current_call->defaultLayout : $this->default_layout,
+			'avatarURL'     => ( ! empty( $current_call->avatarURL ) ) ? $current_call->avatarURL : $this->avatar_url,
+			'redirect'      => ( ! empty( $current_call->redirect ) ) ? $current_call->redirect : $this->redirect,
+			'clientURL'     => ( ! empty( $current_call->clientURL ) ) ? $current_call->clientURL : $this->client_url,
+			'joinViaHtml5'  => ( ! empty( $current_call->joinViaHtml5 ) ) ? $current_call->joinViaHtml5 : $this->join_via_html5,
+			'guest'         => ( ! empty( $current_call->guest ) ) ? $current_call->guest : $this->guest,
+		);
+
+		$query_string = json_decode( json_encode( $query_string ) );
+		$query_string = http_build_query( $query_string );
+
+		$checksum = hash( 'sha256', $this->call_name . $query_string . $this->shared_secret );
+
+		$ch  = curl_init();
+		$url = $this->api_url . $this->call_name . '?' . $query_string . '&checksum=' . $checksum;
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_HEADER, false );
+		curl_setopt( $ch, CURLPROTO_HTTPS, true );
+
+		$response = curl_exec( $ch );
+
+		if ( false === $response ) :
+			$error_obj = array(
+				'error'  => curl_error( $ch ),
+				'status' => 'failed',
+				'url'    => $url,
+			);
+
+			curl_close( $ch );
+
+			$error_obj = json_decode( json_encode( $error_obj ) );
+
+			return $error_obj;
+		else :
+
+			$xml_response   = simplexml_load_string( $response );
+			$json_response  = json_encode( $xml_response );
+			$array_response = json_decode( $json_response, true );
+			$data_obj       = array(
+				'response' => $array_response,
+				'url'      => $url,
+			);
+
+			curl_close( $ch );
+
+			return $data_obj;
+
+		endif;
+	}
+
+	/**
 	 * Check if the meeting is running.
 	 *
 	 * @return array returns the response.
@@ -804,6 +946,62 @@ class Wonkasoft_BBB_Integration_Api {
 	 */
 	public function bbb_end_meeting() {
 		$this->call_name = 'end';
+
+		$query_string = array(
+			'meetingID' => $this->meeting_id,
+			'password'  => $this->moderator_pw,
+		);
+
+		$query_string = json_decode( json_encode( $query_string ) );
+		$query_string = http_build_query( $query_string );
+
+		$checksum = hash( 'sha256', $this->call_name . $query_string . $this->shared_secret );
+
+		$ch  = curl_init();
+		$url = $this->api_url . $this->call_name . '?' . $query_string . '&checksum=' . $checksum;
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_HEADER, false );
+		curl_setopt( $ch, CURLPROTO_HTTPS, true );
+
+		$response = curl_exec( $ch );
+
+		if ( false === $response ) :
+			$error_obj = array(
+				'error'  => curl_error( $ch ),
+				'status' => 'failed',
+				'url'    => $url,
+			);
+
+			curl_close( $ch );
+
+			$error_obj = json_decode( json_encode( $error_obj ) );
+
+			return $error_obj;
+		else :
+
+			$xml_response   = simplexml_load_string( $response );
+			$json_response  = json_encode( $xml_response );
+			$array_response = json_decode( $json_response, true );
+			$data_obj       = array(
+				'response' => $array_response,
+				'url'      => $url,
+			);
+
+			curl_close( $ch );
+
+			return $data_obj;
+
+		endif;
+	}
+
+	/**
+	 * This gets the meeting information.
+	 *
+	 * @return array returns the response.
+	 */
+	public function bbb_get_meeting_info() {
+		$this->call_name = 'getMeetingInfo';
 
 		$query_string = array(
 			'meetingID' => $this->meeting_id,

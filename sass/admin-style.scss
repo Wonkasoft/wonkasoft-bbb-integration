@@ -51,10 +51,20 @@
 }
 
 #conference-status {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+	overflow: hidden;
 
 	table.table {
+		width: 100% !important;
 
 		tbody {
+			width: 100%;
+
+			tr {
+				width: 100%;
+			}
 
 			label, code {
 				margin: 0;
@@ -70,12 +80,13 @@
 			}
 
 			code {
-				width: 70px;
+				width: 100px;
 				justify-content: center;
 				padding: 0 8px;
 			}
 
 			th,td {
+				max-width: 100%;
 				padding: 8px;
 			}
 
@@ -86,9 +97,20 @@
 			td {
 				width: auto;
 
-				span.field-description {
-					margin-top: 8px;
+				div.conference-links {
+					max-width: 100%;
+					overflow: hidden;
+				}
+
+				input {
 					width: 100%;
+				}
+
+				span.field-description {
+					display: inline-block;
+					margin-top: 8px;
+					clear: both;
+					width: auto;
 
 					code {
 						padding: 8px;
@@ -98,11 +120,6 @@
 						white-space: nowrap;
 					}
 				}
-			}
-
-			.overflow-hidden {
-				max-width: 100%;
-				overflow: hidden;
 			}
 		}
 	}

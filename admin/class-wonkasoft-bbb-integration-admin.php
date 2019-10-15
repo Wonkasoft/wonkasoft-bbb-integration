@@ -232,9 +232,28 @@ class Wonkasoft_Bbb_Integration_Admin {
 	public function wonkasoft_bbb_meta_box_content( $post, $args = null ) {
 		// Add nonce for security and authentication.
 		wp_nonce_field( 'wonkasoft_conference_save_nonce', 'wonkasoft_conference_status_nonce' );
-		$post_id              = $post->ID;
-		$post_meta            = ( ! empty( get_post_meta( $post_id, 'conference_status', true ) ) ) ? wp_kses_allowed_html( get_post_meta( $post_id, 'conference_status', true ) ) : null;
-		$post_meta_conference = ( ! empty( get_post_meta( $post_id, 'conference_created', false ) ) ) ? wp_kses_allowed_html( get_post_meta( $post_id, 'conference_created', false ) ) : null;
+		$post_id   = $post->ID;
+		$user      = wp_get_current_user();
+		$post_meta = ( ! empty( get_post_meta( $post_id, 'conference_status', true ) ) ) ? wp_kses_allowed_html( get_post_meta( $post_id, 'conference_status', true ) ) : null;
+
+		$user_args = array(
+			'fullName' => $user->data->user_nicename,
+			'userID'   => $user->ID,
+		);
+
+		$post_meta_conference      = null;
+		$join_conference_moderator = null;
+		$join_conference_attendee  = null;
+
+		$bbb_init                  = new Wonkasoft_BBB_Integration_Api( $post_meta );
+		$conference_is_meeting     = $bbb_init->bbb_is_meeting_running();
+		$post_meta_conference      = json_decode( json_encode( $bbb_init->bbb_get_meeting_info() ) );
+		$join_conference_moderator = json_decode( json_encode( $bbb_init->bbb_join_as_moderator( $user_args ) ) );
+		$join_conference_attendee  = json_decode( json_encode( $bbb_init->bbb_join_as_attendee( $user_args ) ) );
+
+		echo "<pre>\n";
+		print_r( $post_meta_conference );
+		echo "</pre>\n";
 
 		$post_meta = json_decode( json_encode( $post_meta ) );
 
@@ -253,15 +272,41 @@ class Wonkasoft_Bbb_Integration_Admin {
 		$output .= '</td>';
 		$output .= '</tr>';
 
+		if ( ! empty( $join_conference_moderator ) ) {
+			$output .= '<tr>';
+			$output .= '<th scope="row">';
+			$output .= 'Join conference as moderator:';
+			$output .= '</th>';
+			$output .= '<td>';
+			$output .= '<div class="conference-links">';
+			$output .= '<a href="' . esc_url( $join_conference_moderator->url ) . '" target="_blank">' . esc_html( $join_conference_moderator->url ) . '</a>';
+			$output .= '</div>';
+			$output .= '</td>';
+			$output .= '</tr>';
+		}
+
+		if ( ! empty( $join_conference_attendee ) ) {
+			$output .= '<tr>';
+			$output .= '<th scope="row">';
+			$output .= 'Join conference as attendee:';
+			$output .= '</th>';
+			$output .= '<td>';
+			$output .= '<div class="conference-links">';
+			$output .= '<a href="' . esc_url( $join_conference_attendee->url ) . '" target="_blank">' . esc_html( $join_conference_attendee->url ) . '</a>';
+			$output .= '</div>';
+			$output .= '</td>';
+			$output .= '</tr>';
+		}
+
 		if ( ! empty( $post_meta_conference ) ) {
 			$output .= '<tr>';
 			$output .= '<th scope="row">';
 			$output .= 'Conference info:';
 			$output .= '</th>';
-			$output .= '<td class="overflow-hidden">';
+			$output .= '<td>';
 			ob_start();
 				echo "<pre>\n";
-				print_r( json_encode( json_decode( array_shift( $post_meta_conference ) )->response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+				print_r( json_encode( $post_meta_conference->response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
 				echo "</pre>\n";
 			$output .= ob_get_clean();
 			$output .= '</td>';
@@ -273,7 +318,7 @@ class Wonkasoft_Bbb_Integration_Admin {
 		$output .= '<label for="meeting_id">meetingID:</label>';
 		$output .= '</th>';
 		$output .= '<td class="input-group">';
-		$output .= '<pre><code>' . $post->ID . '</code></pre>';
+		$output .= '<pre><code>meeting-' . $post->ID . '</code></pre>';
 		$output .= '<input type="hidden" value="meeting-' . $post->ID . '" id="meeting_id" name="conference_meetingID" />';
 		$output .= '<span class="field-description">A meeting ID that can be used to identify this meeting by the 3rd-party application.</span>';
 		$output .= '</td>';
@@ -361,15 +406,16 @@ class Wonkasoft_Bbb_Integration_Admin {
 		$output          .= '</td>';
 		$output          .= '</tr>';
 
-		$output .= '<tr>';
-		$output .= '<th scope="row">';
-		$output .= '<label for="logout_url">logoutURL:</label>';
-		$output .= '</th>';
-		$output .= '<td class="input-group">';
-		$output .= '<input type="text" class="form-control" id="logout_url" name="conference_logoutURL" value="' . $post_meta->logoutURL . '" />';
-		$output .= '<span class="field-description">The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out message’.</span>';
-		$output .= '</td>';
-		$output .= '</tr>';
+		$output  .= '<tr>';
+		$output  .= '<th scope="row">';
+		$output  .= '<label for="logout_url">logoutURL:</label>';
+		$output  .= '</th>';
+		$output  .= '<td class="input-group">';
+		$site_url = ( ! empty( $post_meta->logoutURL ) ) ? $post_meta->logoutURL : get_site_url();
+		$output  .= '<input type="text" class="form-control" id="logout_url" name="conference_logoutURL" value="' . $site_url . '" />';
+		$output  .= '<span class="field-description">The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out message’.</span>';
+		$output  .= '</td>';
+		$output  .= '</tr>';
 
 		$output .= '<tr>';
 		$output .= '<th scope="row">';
@@ -663,6 +709,12 @@ class Wonkasoft_Bbb_Integration_Admin {
 				'div'   => array(
 					'id'    => array(),
 					'class' => array(),
+				),
+				'a'     => array(
+					'id'     => array(),
+					'class'  => array(),
+					'href'   => array(),
+					'target' => array(),
 				),
 				'pre'   => array(
 					'class' => array(),
